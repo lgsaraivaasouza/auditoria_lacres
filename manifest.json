@@ -1,0 +1,8 @@
+{
+  "name": "Controle de Lacres - Saraiva Labs",
+  "short_name": "Lacres CD",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0B0E17",
+  "theme_color": "#E11D48"
+}
