@@ -297,7 +297,7 @@
           <span class="field-label">Motorista</span>
           <div class="pill-grid" id="motoristasGrid"></div>
 
-          <span class="field-label">Responsável CD (Quem lacrou)</span>
+          <span class="field-label">Responsável CD</span>
           <div class="pill-grid" id="responsaveisGrid"></div>
 
           <label class="field-label" for="lojaDestinoSelect">Loja Destino</label>
@@ -663,7 +663,7 @@
       container.innerHTML = html;
     }
 
-    window.compartilharWhatsApp = (motorista) => {
+   window.compartilharWhatsApp = (motorista) => {
       const itensMot = registrosPendentes.filter(r => r.motorista === motorista);
       const porLoja = new Map();
       itensMot.forEach(r => {
@@ -671,6 +671,19 @@
         porLoja.get(r.loja_destino).push(r.numero_lacre);
       });
 
+      const hoje = new Date().toLocaleDateString('pt-BR');
+      const icPrancheta = String.fromCodePoint(0x1F4CB); // 📋
+      const icData = String.fromCodePoint(0x1F4C5);      // 📅
+      const icCaminhao = String.fromCodePoint(0x1F69B);  // 🚛
+      const icPin = String.fromCodePoint(0x1F4CD);       // 📍
+
+      let texto = `${icPrancheta} *ROTEIRO DE ENTREGAS*\n${icData} *Data:* ${hoje}\n\n${icCaminhao} *MOTORISTA: ${motorista.toUpperCase()}*\n\n`;
+      porLoja.forEach((lacres, loja) => {
+        texto += `${icPin} *${loja}:* Lacre(s) ${lacres.join(', ')}\n`;
+      });
+
+      window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(texto.trim())}`, '_blank');
+    };
       const hoje = new Date().toLocaleDateString('pt-BR');
       let texto = `📋 *ROTEIRO DE ENTREGAS*\n📅 *Data:* ${hoje}\n\n🚛 *MOTORISTA: ${motorista.toUpperCase()}*\n\n`;
       porLoja.forEach((lacres, loja) => {
