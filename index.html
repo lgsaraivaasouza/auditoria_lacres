@@ -279,7 +279,10 @@
         <div class="card">
           <div class="card-title">
             <span>Gaiolas em Trânsito (Pendentes)</span>
-            <button class="btn-secondary" id="btnRefreshPendentes" type="button" style="padding:6px 10px;font-size:12px;">↻ Atualizar</button>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <button class="btn-whatsapp" id="btnWhatsAppGeral" type="button" style="padding:6px 12px;font-size:12px;">📲 Enviar Roteiro</button>
+              <button class="btn-secondary" id="btnRefreshPendentes" type="button" style="padding:6px 10px;font-size:12px;">↻ Atualizar</button>
+            </div>
           </div>
           <div id="pendentesList">
             <div class="empty-state">Carregando lacres pendentes...</div>
@@ -613,14 +616,15 @@
 
     function renderizarPendentes() {
       const container = document.getElementById('pendentesList');
+      const btnWpp = document.getElementById('btnWhatsAppGeral');
       document.getElementById('badgePendentes').textContent = registrosPendentes.length;
+      if (btnWpp) btnWpp.classList.toggle('hidden', registrosPendentes.length === 0);
 
       if (registrosPendentes.length === 0) {
         container.innerHTML = '<div class="empty-state">Nenhuma gaiola pendente de entrega no momento.</div>';
         return;
       }
 
-      // Agrupa por Motorista -> Loja
       const porMotorista = new Map();
       registrosPendentes.forEach(r => {
         if (!porMotorista.has(r.motorista)) porMotorista.set(r.motorista, new Map());
@@ -653,7 +657,6 @@
           <div class="driver-group">
             <div class="driver-header">
               <strong style="font-size:14px;">🚛 Motorista: ${motorista.toUpperCase()}</strong>
-              <button class="btn-whatsapp" onclick="compartilharWhatsApp('${motorista}')">📲 Enviar Roteiro WhatsApp</button>
             </div>
             ${lojasHtml}
           </div>
@@ -663,12 +666,15 @@
       container.innerHTML = html;
     }
 
-  window.compartilharWhatsApp = (motorista) => {
-      const itensMot = registrosPendentes.filter(r => r.motorista === motorista);
-      const porLoja = new Map();
-      itensMot.forEach(r => {
-        if (!porLoja.has(r.loja_destino)) porLoja.set(r.loja_destino, []);
-        porLoja.get(r.loja_destino).push(r.numero_lacre);
+    document.getElementById('btnWhatsAppGeral').addEventListener('click', () => {
+      if (registrosPendentes.length === 0) return;
+
+      const porMotorista = new Map();
+      registrosPendentes.forEach(r => {
+        if (!porMotorista.has(r.motorista)) porMotorista.set(r.motorista, new Map());
+        const lojasMap = porMotorista.get(r.motorista);
+        if (!lojasMap.has(r.loja_destino)) lojasMap.set(r.loja_destino, []);
+        lojasMap.get(r.loja_destino).push(r.numero_lacre);
       });
 
       const hoje = new Date().toLocaleDateString('pt-BR');
@@ -677,13 +683,17 @@
       const icCaminhao = String.fromCodePoint(0x1F69B);  // 🚛
       const icPin = String.fromCodePoint(0x1F4CD);       // 📍
 
-      let texto = `${icPrancheta} *ROTEIRO DE ENTREGAS*\n${icData} *Data:* ${hoje}\n\n${icCaminhao} *MOTORISTA: ${motorista.toUpperCase()}*\n\n`;
-      porLoja.forEach((lacres, loja) => {
-        texto += `${icPin} *${loja}:* Lacre(s) ${lacres.join(', ')}\n`;
+      let texto = `${icPrancheta} *ROTEIRO DE ENTREGAS*\n${icData} *Data:* ${hoje}\n`;
+
+      porMotorista.forEach((lojasMap, motorista) => {
+        texto += `\n${icCaminhao} *MOTORISTA: ${motorista.toUpperCase()}*\n`;
+        lojasMap.forEach((lacres, loja) => {
+          texto += `${icPin} *${loja}:* Lacre(s) ${lacres.join(', ')}\n`;
+        });
       });
 
       window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(texto.trim())}`, '_blank');
-    };
+    });
     
     // --- ASSINATURA NA TELA (CANVAS + UPLOAD NO BUCKET "assinaturas") ---
     const canvas = document.getElementById('sigCanvas');
