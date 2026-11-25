@@ -663,7 +663,7 @@
       container.innerHTML = html;
     }
 
-   window.compartilharWhatsApp = (motorista) => {
+  window.compartilharWhatsApp = (motorista) => {
       const itensMot = registrosPendentes.filter(r => r.motorista === motorista);
       const porLoja = new Map();
       itensMot.forEach(r => {
@@ -684,12 +684,7 @@
 
       window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(texto.trim())}`, '_blank');
     };
-      const hoje = new Date().toLocaleDateString('pt-BR');
-      let texto = `📋 *ROTEIRO DE ENTREGAS*\n📅 *Data:* ${hoje}\n\n🚛 *MOTORISTA: ${motorista.toUpperCase()}*\n\n`;
-      porLoja.forEach((lacres, loja) => {
-        texto += `📍 *${loja}:* Lacre(s) ${lacres.join(', ')}\n`;
-      });
-
+    
     // --- ASSINATURA NA TELA (CANVAS + UPLOAD NO BUCKET "assinaturas") ---
     const canvas = document.getElementById('sigCanvas');
     const ctx = canvas.getContext('2d');
