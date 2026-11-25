@@ -690,9 +690,6 @@
         texto += `📍 *${loja}:* Lacre(s) ${lacres.join(', ')}\n`;
       });
 
-      window.open(`https://wa.me/?text=${encodeURIComponent(texto.trim())}`, '_blank');
-    };
-
     // --- ASSINATURA NA TELA (CANVAS + UPLOAD NO BUCKET "assinaturas") ---
     const canvas = document.getElementById('sigCanvas');
     const ctx = canvas.getContext('2d');
